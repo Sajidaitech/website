@@ -7,6 +7,21 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hasHover = matchMedia('(hover:hover)').matches;
 
 /* ---------------------------------------------------------------
+   Part 5 — shared rAF-batched scroll dispatcher.
+   Several features below used to attach their own raw 'scroll'
+   listener (one synchronous layout read per scroll event each).
+   They now register here and run together once per animation
+   frame, so a fast scroll fires one rAF instead of three+ handlers.
+--------------------------------------------------------------- */
+const scrollUpdaters = [];
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => { scrollUpdaters.forEach(fn => fn()); scrollTicking = false; });
+}, { passive: true });
+
+/* ---------------------------------------------------------------
    Specular highlight on every glass panel — tracks the pointer via
    --mx/--my, consumed by the ::before spotlight in styles.css.
    This is the one signature "liquid glass" interaction.
@@ -21,34 +36,18 @@ if (hasHover) {
   });
 }
 
-/* Soft trailing glow that drifts behind the glass, echoing depth */
-const glow = $('#cursorGlow');
-if (glow && !reduceMotion) {
-  let mx = innerWidth/2, my = innerHeight*.3, gx = mx, gy = my;
-  window.addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; });
-  (function raf(){
-    gx += (mx-gx)*.07; gy += (my-gy)*.07;
-    glow.style.transform = `translate(${gx-260}px, ${gy-260}px)`;
-    requestAnimationFrame(raf);
-  })();
-}
+/* Part 5: the always-on trailing cursor glow (a permanent rAF loop
+   plus a permanent pointermove listener, running for the entire
+   session regardless of interaction) has been removed — it was the
+   one piece of continuous/infinite motion on the site and pure
+   mouse-tracking overhead. The pointer-driven .glass specular
+   highlight above already gives panels a "lit" feel on hover,
+   scoped to hover only. */
 
 /* ---------------------------------------------------------------
-   Hero photo — subtle pointer-tracked tilt, depth to match the
-   glass specular highlight already happening on hover.
+   Hero photo pointer-tilt now handled by the generic [data-tilt]
+   system (Part 1 / Part 2 foundation) — see bottom of this file.
 --------------------------------------------------------------- */
-const heroPhotoWrap = $('.hero-photo-wrap');
-if (heroPhotoWrap && hasHover && !reduceMotion) {
-  heroPhotoWrap.addEventListener('pointermove', e => {
-    const r = heroPhotoWrap.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - .5;
-    const py = (e.clientY - r.top) / r.height - .5;
-    heroPhotoWrap.style.transform = `perspective(900px) rotateY(${px*7}deg) rotateX(${py*-7}deg)`;
-  });
-  heroPhotoWrap.addEventListener('pointerleave', () => {
-    heroPhotoWrap.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg)';
-  });
-}
 
 /* ---------------------------------------------------------------
    Animated stat counters — the hero readout and the About section
@@ -97,7 +96,7 @@ if (tlProgress && timelineEl && !reduceMotion) {
     const pct = Math.max(0, Math.min(1, raw));
     tlProgress.style.height = `${pct * 100}%`;
   }
-  window.addEventListener('scroll', updateTlProgress, { passive: true });
+  scrollUpdaters.push(updateTlProgress);
   window.addEventListener('resize', updateTlProgress);
   updateTlProgress();
 }
@@ -156,7 +155,7 @@ if (heroSection && heroPhoto && !reduceMotion) {
       }
     }
   }
-  window.addEventListener('scroll', updateHeroScrub, { passive: true });
+  scrollUpdaters.push(updateHeroScrub);
   window.addEventListener('resize', updateHeroScrub);
   updateHeroScrub();
 }
@@ -231,7 +230,7 @@ function updateProgress(){
   const max = h.scrollHeight - h.clientHeight;
   progress.style.width = max > 0 ? `${(h.scrollTop/max)*100}%` : '0%';
 }
-window.addEventListener('scroll', updateProgress, { passive: true });
+scrollUpdaters.push(updateProgress);
 updateProgress();
 
 /* ---------------------------------------------------------------
@@ -245,3 +244,188 @@ $$('[data-case]').forEach(card => {
     if (!wasOpen) card.classList.add('open');
   });
 });
+
+/* =============================================================
+   Spatial Animation Foundation — Part 1
+   Reusable [data-*] engine: transform + opacity only, GPU-friendly.
+   Independent of the .reveal system above — does not replace it.
+   ============================================================= */
+(function spatialFoundation(){
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasHover = matchMedia('(hover:hover)').matches;
+  const isTouch = matchMedia('(pointer:coarse)').matches;
+  const isNarrow = innerWidth < 720;
+
+  /* Stagger — assign --sp-i to each [data-reveal] child inside a [data-stagger] group */
+  $$('[data-stagger]').forEach(group => {
+    $$('[data-reveal]', group).forEach((el, i) => el.style.setProperty('--sp-i', i));
+  });
+
+  /* Reveal — IntersectionObserver, one-shot, respects reduced motion */
+  const revealEls = $$('[data-reveal]');
+  if (revealEls.length) {
+    if (reduceMotion) {
+      revealEls.forEach(el => el.classList.add('is-visible'));
+    } else {
+      const revealObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: .18, rootMargin: '0px 0px -8% 0px' });
+      revealEls.forEach(el => revealObserver.observe(el));
+    }
+  }
+
+  /* Depth / parallax — rAF-batched scroll, translate3d only. Skipped on narrow viewports. */
+  const depthEls = $$('[data-depth], [data-parallax]');
+  if (depthEls.length && !reduceMotion && !isNarrow) {
+    let ticking = false;
+    function applyDepth(){
+      const vh = innerHeight;
+      depthEls.forEach(el => {
+        const factor = parseFloat(el.dataset.depth ?? el.dataset.parallax ?? .06);
+        const r = el.getBoundingClientRect();
+        const centerOffset = (r.top + r.height / 2) - vh / 2;
+        const y = (centerOffset * factor * -1).toFixed(2);
+        el.style.transform = `translate3d(0, ${y}px, 0)`;
+      });
+      ticking = false;
+    }
+    function onScroll(){ if (!ticking) { requestAnimationFrame(applyDepth); ticking = true; } }
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+    applyDepth();
+  }
+
+  /* Tilt — pointer-driven perspective, desktop hover only.
+     Responsive tiers: full strength >=1024px, reduced 640-1023px,
+     effectively off below 640px (also gated by hover/touch above). */
+  if (hasHover && !isTouch && !reduceMotion) {
+    function tiltStrength(){
+      const w = innerWidth;
+      if (w < 640) return 0;
+      if (w < 1024) return .45;
+      return 1;
+    }
+    $$('[data-tilt]').forEach(el => {
+      const max = parseFloat(el.dataset.tiltMax) || 6;
+      el.addEventListener('pointermove', e => {
+        const strength = tiltStrength();
+        if (!strength) return;
+        const r = el.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - .5;
+        const py = (e.clientY - r.top) / r.height - .5;
+        const m = max * strength;
+        el.style.transform = `perspective(1200px) rotateY(${(px*m).toFixed(2)}deg) rotateX(${(py*-m).toFixed(2)}deg)`;
+      });
+      el.addEventListener('pointerleave', () => {
+        el.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)';
+      });
+    });
+  }
+})();
+
+/* =================================================================
+   PART 4 — Technical Arsenal tab switcher
+   Simple click-to-show tag cloud, no external deps, respects the
+   existing reveal/tilt systems above (does not touch them).
+================================================================= */
+(function arsenalTabs(){
+  const tabs = document.querySelectorAll('.arsenal-tab');
+  if (!tabs.length) return;
+  const clouds = document.querySelectorAll('.arsenal-cloud');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const key = tab.dataset.arsenal;
+      tabs.forEach(t => { t.classList.toggle('active', t === tab); t.setAttribute('aria-selected', t === tab); });
+      clouds.forEach(c => c.classList.toggle('active', c.dataset.panel === key));
+    });
+  });
+})();
+
+/* =================================================================
+   CONTACT FORM — Formspree AJAX submission
+   Uses the existing #contactForm markup only. Native HTML5
+   validation runs first (required fields + email type); on pass,
+   submits via fetch so the visitor never leaves the page or sees
+   a Formspree redirect. Button label and a small status line
+   (aria-live) are the only things that change — no new animation,
+   no layout shift.
+================================================================= */
+(function contactForm(){
+  const form = document.getElementById('contactForm');
+  if (!form) return;
+
+  const submitBtn = form.querySelector('.cf-submit');
+  const submitLabel = form.querySelector('.cf-submit-text');
+  const status = form.querySelector('.cf-status');
+  let resetTimer = null;
+
+  function setState(state, message){
+    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+    status.classList.remove('is-success', 'is-error');
+    if (state === 'sending') {
+      submitBtn.disabled = true;
+      submitLabel.textContent = 'Sending…';
+      status.textContent = '';
+    } else if (state === 'success') {
+      submitBtn.disabled = false;
+      submitLabel.textContent = 'Message Sent ✓';
+      status.textContent = message;
+      status.classList.add('is-success');
+      resetTimer = setTimeout(() => { submitLabel.textContent = 'Send Message'; }, 4000);
+    } else if (state === 'error') {
+      submitBtn.disabled = false;
+      submitLabel.textContent = 'Try Again';
+      status.textContent = message;
+      status.classList.add('is-error');
+    } else {
+      submitBtn.disabled = false;
+      submitLabel.textContent = 'Send Message';
+      status.textContent = '';
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Normal browser validation — required fields + email format.
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    setState('sending');
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        setState('success', "Message sent successfully. Thank you for reaching out — I'll get back to you as soon as possible.");
+        form.reset();
+      } else {
+        let detail = '';
+        try {
+          const data = await response.json();
+          if (data && Array.isArray(data.errors)) {
+            detail = data.errors.map(err => err.message).join(' ');
+          }
+        } catch (parseErr) {
+          // response wasn't JSON — nothing further to extract
+        }
+        if (detail) console.error('Formspree error:', detail);
+        setState('error', 'Unable to send your message. Please try again.');
+      }
+    } catch (networkErr) {
+      console.error('Contact form network error:', networkErr);
+      setState('error', 'Unable to send your message. Please check your connection and try again.');
+    }
+  });
+})();

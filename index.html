@@ -20,11 +20,18 @@
   <a href="#home" class="nav-brand"><span class="ping"></span> Sajid Mehmood</a>
   <div class="nav-links" id="navLinks">
     <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#why-hire">Why Hire</a>
     <a href="#experience">Experience</a>
-    <a href="#projects">Missions</a>
-    <a href="#lab">Lab</a>
+    <a href="#skills">Skills</a>
     <a href="#arsenal">Arsenal</a>
+    <a href="#certifications">Certifications</a>
+    <a href="#projects">Missions</a>
     <a href="#proof">Proof</a>
+    <a href="#lab">Lab</a>
+    <a href="#education">Education</a>
+    <a href="#achievements">Achievements</a>
+    <a href="#references">References</a>
     <a href="#contact">Contact</a>
   </div>
   <a href="#contact" class="nav-cta">Let's talk</a>
@@ -35,14 +42,16 @@
 <div class="mob-drawer glass-clear glass-tight" id="mobDrawer">
   <a href="#home">Home</a>
   <a href="#about">About</a>
+  <a href="#why-hire">Why Hire</a>
   <a href="#experience">Experience</a>
   <a href="#skills">Skills</a>
-  <a href="#projects">Missions</a>
-  <a href="#lab">Lab</a>
   <a href="#arsenal">Arsenal</a>
   <a href="#certifications">Certifications</a>
+  <a href="#projects">Missions</a>
   <a href="#proof">Proof</a>
+  <a href="#lab">Lab</a>
   <a href="#education">Education</a>
+  <a href="#achievements">Achievements</a>
   <a href="#references">References</a>
   <a href="#contact">Contact</a>
 </div>
@@ -612,55 +621,83 @@
       <div class="section-label"><span class="dot"></span>Infrastructure Lab</div>
       <h2>Hands-on work, documented — not simulated.</h2>
       <p class="section-intro">Field diagnostics and applied security work drawn directly from on-site incidents. Categories without a documented write-up yet are marked as such rather than filled in.</p>
-      <div class="lab-grid" data-stagger>
+      <div class="lab-board glass" data-stagger>
 
-        <div class="lab-card glass" data-reveal="up">
-          <div class="lab-cat">Cisco / Networking</div>
-          <h3>IDF Room Network Troubleshooting</h3>
-          <img class="lab-photo" src="https://www.sajidmk.com/IDF_Room.jpeg" alt="IDF room network troubleshooting" loading="lazy">
-          <p class="lab-desc">Structured network diagnostics and connectivity troubleshooting within an enterprise IDF (intermediate distribution frame) environment.</p>
-          <details>
-            <summary>Objective & actions</summary>
-            <p><strong>Objective</strong> — restore lost network/internet connectivity at the IDF.</p>
-            <p><strong>Actions</strong> — verified switch and cable connectivity, ran structured network diagnostics, traced the fault, restored service availability.</p>
-          </details>
-          <div class="skill-tags"><span>TCP/IP</span><span>Structured Cabling</span><span>Switch Connectivity</span></div>
-          <div class="skill-proof">Result: network service restored</div>
+        <div class="lab-board-head">
+          <span class="lab-board-label">Ticket log</span>
+          <span class="lab-board-count">3 closed · 1 open</span>
         </div>
 
-        <div class="lab-card glass" data-reveal="up">
-          <div class="lab-cat">Hardware / IT Support</div>
-          <h3>UPS & Server Power Diagnostics</h3>
-          <img class="lab-photo" src="https://www.sajidmk.com/UPS___Server.jpeg" alt="UPS and server power diagnostics" loading="lazy">
-          <p class="lab-desc">Diagnosed and resolved a UPS connectivity issue to ensure uninterrupted server power and system stability.</p>
-          <details>
-            <summary>Objective & actions</summary>
-            <p><strong>Objective</strong> — resolve a UPS backup power issue threatening server uptime.</p>
-            <p><strong>Actions</strong> — inspected hardware and power connections, performed safe shutdown/recovery procedures, restored server power operations.</p>
-          </details>
-          <div class="skill-tags"><span>UPS Systems</span><span>Power Diagnostics</span><span>Server Support</span></div>
-          <div class="skill-proof">Result: server power operations restored</div>
-        </div>
+        <details class="lab-ticket" data-reveal="up" open>
+          <summary class="lab-ticket-head">
+            <span class="lab-dot lab-dot--done"></span>
+            <span class="lab-id">LOG-01</span>
+            <span class="lab-cat">Cisco / Networking</span>
+            <span class="lab-title">IDF Room Network Troubleshooting</span>
+            <span class="lab-status lab-status--done">Resolved</span>
+          </summary>
+          <div class="lab-ticket-body">
+            <img class="lab-thumb" src="https://www.sajidmk.com/IDF_Room.jpeg" alt="IDF room network troubleshooting" loading="lazy">
+            <div class="lab-ticket-text">
+              <p class="lab-desc">Structured network diagnostics and connectivity troubleshooting within an enterprise IDF (intermediate distribution frame) environment.</p>
+              <p><strong>Objective</strong> — restore lost network/internet connectivity at the IDF.</p>
+              <p><strong>Actions</strong> — verified switch and cable connectivity, ran structured network diagnostics, traced the fault, restored service availability.</p>
+              <div class="skill-tags"><span>TCP/IP</span><span>Structured Cabling</span><span>Switch Connectivity</span></div>
+              <div class="skill-proof">Result: network service restored</div>
+            </div>
+          </div>
+        </details>
 
-        <div class="lab-card glass" data-reveal="up">
-          <div class="lab-cat">Cybersecurity</div>
-          <h3>Applied vs. working knowledge</h3>
-          <p class="lab-desc">Security-relevant capability drawn from live enterprise deployments — separating what was applied hands-on from working knowledge gained through CCNA certification and academic study.</p>
-          <details open>
-            <summary>Breakdown by area</summary>
-            <p><strong>Network Security</strong> — Applied: VLAN segmentation, STP, OSPF/BGP routing. Working knowledge: firewall config, VPN, NAT/PAT.</p>
-            <p><strong>Endpoint Security</strong> — Applied: Kaspersky EDR deployment (FIFA 2022), patch management across 300+ devices. Working knowledge: MDM (Intune).</p>
-            <p><strong>Incident Response</strong> — Applied: threat isolation and cross-team coordination during the FIFA 2022 4-day response, ITIL incident management.</p>
-            <p><strong>Access Control</strong> — Applied: Active Directory, Azure AD/M365, credential recovery (UAE MOI). Working knowledge: Group Policy.</p>
-            <p><strong>Security Monitoring</strong> — Applied: proactive system monitoring, SLA-driven ticket monitoring. Working knowledge: security audits.</p>
-            <p><strong>Backup & Recovery</strong> — Applied: emergency UPS recovery, safe shutdown/restore, zero-downtime continuity (HIA).</p>
-          </details>
-        </div>
+        <details class="lab-ticket" data-reveal="up">
+          <summary class="lab-ticket-head">
+            <span class="lab-dot lab-dot--done"></span>
+            <span class="lab-id">LOG-02</span>
+            <span class="lab-cat">Hardware / IT Support</span>
+            <span class="lab-title">UPS & Server Power Diagnostics</span>
+            <span class="lab-status lab-status--done">Resolved</span>
+          </summary>
+          <div class="lab-ticket-body">
+            <img class="lab-thumb" src="https://www.sajidmk.com/UPS___Server.jpeg" alt="UPS and server power diagnostics" loading="lazy">
+            <div class="lab-ticket-text">
+              <p class="lab-desc">Diagnosed and resolved a UPS connectivity issue to ensure uninterrupted server power and system stability.</p>
+              <p><strong>Objective</strong> — resolve a UPS backup power issue threatening server uptime.</p>
+              <p><strong>Actions</strong> — inspected hardware and power connections, performed safe shutdown/recovery procedures, restored server power operations.</p>
+              <div class="skill-tags"><span>UPS Systems</span><span>Power Diagnostics</span><span>Server Support</span></div>
+              <div class="skill-proof">Result: server power operations restored</div>
+            </div>
+          </div>
+        </details>
 
-        <div class="lab-card glass lab-empty" data-reveal="up">
-          <div class="lab-cat">Azure / Cloud · Windows / Servers · Virtualization</div>
-          <h3>Lab write-ups not yet documented</h3>
-          <p class="lab-desc lab-empty-note">Certification evidence for CCNA and AZ-104 lives in Proof. Dedicated lab write-ups (objective / architecture / configuration / result) for these categories don't exist yet — nothing shown here is invented to fill the gap.</p>
+        <details class="lab-ticket" data-reveal="up" open>
+          <summary class="lab-ticket-head">
+            <span class="lab-dot lab-dot--doc"></span>
+            <span class="lab-id">LOG-03</span>
+            <span class="lab-cat">Cybersecurity</span>
+            <span class="lab-title">Applied vs. working knowledge</span>
+            <span class="lab-status lab-status--doc">Documented</span>
+          </summary>
+          <div class="lab-ticket-body lab-ticket-body--full">
+            <div class="lab-ticket-text">
+              <p class="lab-desc">Security-relevant capability drawn from live enterprise deployments — separating what was applied hands-on from working knowledge gained through CCNA certification and academic study.</p>
+              <p><strong>Network Security</strong> — Applied: VLAN segmentation, STP, OSPF/BGP routing. Working knowledge: firewall config, VPN, NAT/PAT.</p>
+              <p><strong>Endpoint Security</strong> — Applied: Kaspersky EDR deployment (FIFA 2022), patch management across 300+ devices. Working knowledge: MDM (Intune).</p>
+              <p><strong>Incident Response</strong> — Applied: threat isolation and cross-team coordination during the FIFA 2022 4-day response, ITIL incident management.</p>
+              <p><strong>Access Control</strong> — Applied: Active Directory, Azure AD/M365, credential recovery (UAE MOI). Working knowledge: Group Policy.</p>
+              <p><strong>Security Monitoring</strong> — Applied: proactive system monitoring, SLA-driven ticket monitoring. Working knowledge: security audits.</p>
+              <p><strong>Backup & Recovery</strong> — Applied: emergency UPS recovery, safe shutdown/restore, zero-downtime continuity (HIA).</p>
+            </div>
+          </div>
+        </details>
+
+        <div class="lab-ticket lab-ticket-empty" data-reveal="up">
+          <div class="lab-ticket-head lab-ticket-head--static">
+            <span class="lab-dot lab-dot--pending"></span>
+            <span class="lab-id">LOG-04</span>
+            <span class="lab-cat">Azure / Cloud · Windows / Servers · Virtualization</span>
+            <span class="lab-title">Lab write-ups not yet documented</span>
+            <span class="lab-status lab-status--pending">Not logged</span>
+          </div>
+          <p class="lab-empty-note">Certification evidence for CCNA and AZ-104 lives in Proof. Dedicated lab write-ups (objective / architecture / configuration / result) for these categories don't exist yet — nothing shown here is invented to fill the gap.</p>
         </div>
 
       </div>

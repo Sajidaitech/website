@@ -3,7 +3,7 @@
    Neutral frosted-glass design system (gray tint, green + slate-blue accents)
    ============================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root{
   /* ---- palette ---- */
@@ -18,14 +18,20 @@
   --teal-dim: rgba(34,211,166,.16);
   --amber:#8FA8BD;
   --amber-dim: rgba(143,168,189,.16);
-  --text:#F2F4F2;
-  --text-dim:#C4C9CC;
-  --text-faint:#93989E;
+  /* text hierarchy — white-based alpha scale so contrast is guaranteed
+     against any part of the background photo, per the Liquid Glass
+     readability pass (Part 6) */
+  --text:#FFFFFF;
+  --text-dim:rgba(255,255,255,.82);
+  --text-faint:rgba(255,255,255,.68);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-dim);
+  --text-tertiary: var(--text-faint);
   --danger:#FF6B6B;
 
-  /* ---- type ---- */
-  --ff-display:'Space Grotesk', system-ui, sans-serif;
-  --ff-body:'IBM Plex Sans', system-ui, sans-serif;
+  /* ---- type — Apple system stack (Liquid Glass pass) ---- */
+  --ff-display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --ff-body:-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   --ff-mono:'IBM Plex Mono', ui-monospace, monospace;
 
   /* ---- shape / depth ---- */
@@ -53,13 +59,16 @@ body{
   font-size:16px;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
   overflow-x:hidden;
-  text-shadow:0 1px 6px rgba(0,0,0,.35);
+  text-shadow:0 1px 2px rgba(0,0,0,.22);
 }
 img{ max-width:100%; display:block; }
 a{ color:inherit; text-decoration:none; }
 ul{ margin:0; padding:0; list-style:none; }
 h1,h2,h3,h4{ font-family:var(--ff-display); margin:0; font-weight:600; letter-spacing:-.01em; }
+.hero h1, .section h2, .contact-panel h2{ letter-spacing:-.03em; }
 p{ margin:0; }
 button{ font-family:inherit; cursor:pointer; }
 
@@ -97,7 +106,7 @@ button{ font-family:inherit; cursor:pointer; }
   background:
     radial-gradient(ellipse 900px 600px at 12% -6%, rgba(34,211,166,.09), transparent 60%),
     radial-gradient(ellipse 700px 500px at 92% 18%, rgba(143,168,189,.10), transparent 55%),
-    linear-gradient(180deg, rgba(8,9,10,.10) 0%, rgba(8,9,10,.18) 40%, rgba(8,9,10,.46) 100%);
+    linear-gradient(180deg, rgba(8,9,10,.28) 0%, rgba(8,9,10,.30) 40%, rgba(8,9,10,.56) 100%);
 }
 .bg-grain{
   position:fixed; inset:0; z-index:1; pointer-events:none;
@@ -192,9 +201,11 @@ button{ font-family:inherit; cursor:pointer; }
 }
 .nav-brand{ display:flex; align-items:center; gap:10px; font-family:var(--ff-display); font-weight:600; font-size:16px; }
 .nav-brand .ping{ width:8px; height:8px; border-radius:50%; background:var(--teal); box-shadow:0 0 8px var(--teal); }
-.nav-links{ display:flex; gap:4px; align-items:center; }
+.nav-links{ display:flex; gap:2px; align-items:center; max-width:100%; overflow-x:auto; scrollbar-width:none; }
+.nav-links::-webkit-scrollbar{ display:none; }
 .nav-links a{
-  padding:8px 14px; border-radius:999px; font-size:14px; color:var(--text-dim);
+  padding:7px 11px; border-radius:999px; font-size:13px; color:var(--text-dim);
+  white-space:nowrap; flex:none;
   transition:color .2s ease, background .2s ease, transform .2s var(--sp-ease);
 }
 .nav-links a:hover{ color:var(--text); background:rgba(255,255,255,.06); transform:translateY(-1px); }
@@ -209,7 +220,7 @@ button{ font-family:inherit; cursor:pointer; }
 .nav-toggle{ display:none; background:none; border:0; color:var(--text); padding:8px; }
 .nav-toggle svg{ width:22px; height:22px; }
 
-@media (max-width:860px){
+@media (max-width:1180px){
   .nav-links{ display:none; }
   .nav-toggle{ display:flex; }
 }
@@ -217,6 +228,7 @@ button{ font-family:inherit; cursor:pointer; }
 .mob-drawer{
   position:fixed; inset:74px 16px auto 16px; z-index:49;
   padding:14px; display:flex; flex-direction:column; gap:4px;
+  max-height:calc(100vh - 96px); overflow-y:auto;
   transform-origin:top; transform:scaleY(.9); opacity:0; pointer-events:none;
   transition:transform .22s ease, opacity .22s ease;
 }
@@ -583,25 +595,70 @@ button{ font-family:inherit; cursor:pointer; }
 /* ---------------------------------------------------------------
    Infrastructure Lab
 --------------------------------------------------------------- */
-.lab-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:44px; align-items:start; }
-.lab-card{ padding:24px; display:flex; flex-direction:column; gap:12px; }
-.lab-cat{ font-family:var(--ff-mono); font-size:11.5px; color:var(--amber); text-transform:uppercase; letter-spacing:.03em; }
-.lab-card h3{ font-size:16px; }
-.lab-desc{ font-size:13.5px; color:var(--text-dim); }
-.lab-photo{ width:100%; max-height:150px; object-fit:cover; border-radius:12px; border:1px solid var(--glass-border); }
-.lab-card details{ border-top:1px solid var(--glass-border); padding-top:12px; }
-.lab-card summary{ cursor:pointer; font-family:var(--ff-mono); font-size:12px; color:var(--teal); list-style:none; }
-.lab-card summary::-webkit-details-marker{ display:none; }
-.lab-card summary::after{ content:' +'; }
-.lab-card details[open] summary::after{ content:' –'; }
-.lab-card details p{ font-size:13px; color:var(--text-dim); margin-top:10px; }
-.lab-card details p strong{ color:var(--text); }
-.lab-card .skill-tags{ margin-bottom:0; }
-.lab-empty{ justify-content:center; opacity:.85; }
-.lab-empty-note{ font-style:italic; }
+.lab-board{ margin-top:44px; padding:0; }
+.lab-board-head{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:16px 26px; border-bottom:1px solid var(--glass-border);
+  font-family:var(--ff-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+}
+.lab-board-label{ color:var(--text-dim); }
+.lab-board-count{ color:var(--text-faint); }
 
-@media (max-width:900px){ .lab-grid{ grid-template-columns:1fr 1fr; } }
-@media (max-width:620px){ .lab-grid{ grid-template-columns:1fr; } }
+.lab-ticket{ border-bottom:1px solid var(--glass-border); }
+.lab-ticket:last-child{ border-bottom:none; }
+
+.lab-ticket-head{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:17px 26px; cursor:pointer; list-style:none;
+  transition:background .18s ease;
+}
+.lab-ticket-head::-webkit-details-marker{ display:none; }
+.lab-ticket-head:hover{ background:rgba(255,255,255,.035); }
+.lab-ticket-head--static{ cursor:default; }
+.lab-ticket-head--static:hover{ background:none; }
+
+.lab-dot{ width:7px; height:7px; border-radius:50%; flex:none; }
+.lab-dot--done{ background:var(--teal); box-shadow:0 0 7px var(--teal); }
+.lab-dot--doc{ background:var(--amber); box-shadow:0 0 7px rgba(143,168,189,.55); }
+.lab-dot--pending{ background:var(--text-faint); }
+
+.lab-id{ font-family:var(--ff-mono); font-size:12px; color:var(--text-faint); white-space:nowrap; }
+.lab-cat{ font-family:var(--ff-mono); font-size:11.5px; color:var(--amber); text-transform:uppercase; letter-spacing:.03em; }
+.lab-title{ flex:1 1 220px; min-width:140px; font-family:var(--ff-display); font-size:15px; color:var(--text); }
+.lab-status{ font-family:var(--ff-mono); font-size:11px; padding:4px 11px; border-radius:999px; white-space:nowrap; margin-left:auto; }
+.lab-status--done{ color:var(--teal); background:var(--teal-dim); }
+.lab-status--doc{ color:var(--amber); background:var(--amber-dim); }
+.lab-status--pending{ color:var(--text-faint); background:rgba(255,255,255,.05); }
+
+.lab-ticket-head::after{
+  content:'+'; flex:none; width:16px; text-align:center;
+  font-family:var(--ff-mono); font-size:15px; color:var(--text-faint);
+}
+.lab-ticket[open] .lab-ticket-head::after{ content:'–'; }
+
+.lab-ticket-body{ padding:2px 26px 22px; display:flex; gap:20px; }
+.lab-ticket-body--full{ display:block; }
+.lab-thumb{ width:120px; height:88px; object-fit:cover; border-radius:var(--radius-sm); border:1px solid var(--glass-border); flex:none; }
+.lab-ticket-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:9px; }
+.lab-desc{ font-size:13.5px; color:var(--text-dim); }
+.lab-ticket-text p{ font-size:13px; color:var(--text-dim); margin:0; }
+.lab-ticket-text p strong{ color:var(--text); }
+.lab-ticket-text .skill-tags{ margin:1px 0 0; }
+.lab-ticket-text .skill-proof{ font-size:12.5px; color:var(--text-faint); font-family:var(--ff-mono); }
+
+.lab-ticket-empty .lab-cat{ color:var(--text-faint); }
+.lab-empty-note{ margin:0; padding:0 26px 20px; font-size:13px; font-style:italic; color:var(--text-faint); }
+
+@media (max-width:760px){
+  .lab-board-head{ padding:14px 20px; }
+  .lab-ticket-head{ padding:15px 20px 15px 18px; gap:10px; }
+  .lab-title{ flex:1 1 100%; order:5; font-size:14px; margin-top:2px; }
+  .lab-status{ order:4; margin-left:0; }
+  .lab-ticket-head::after{ order:6; margin-left:auto; }
+  .lab-ticket-body{ flex-direction:column; padding:0 20px 20px; }
+  .lab-thumb{ width:100%; height:150px; }
+  .lab-empty-note{ padding:0 20px 18px; }
+}
 
 /* ---------------------------------------------------------------
    Education
@@ -1014,3 +1071,292 @@ footer{ padding:40px var(--edge) 60px; position:relative; z-index:2; }
 /* Contact form styling now lives with the rest of the Contact
    redesign, up near .contact-panel — this Formspree-integration
    pass only added behavior (script.js), not a second style block. */
+
+/* =================================================================
+   PART 6 — iOS 27 / Liquid Glass visual refinement
+   Purely presentational. No HTML changed, no functionality touched.
+   Redefines tokens + the .glass/.glass-clear surfaces + buttons in
+   place (later in the cascade wins, same approach as Part 5) rather
+   than rewriting every rule that consumes them. Also switches off a
+   couple of earlier decorative effects (heading "glitch" flicker,
+   glowing diamond corner markers, chamfered/bracket buttons) that
+   read as neon/HUD rather than a calm, premium Apple surface.
+================================================================= */
+
+:root{
+  /* named aliases for the 3-layer glass system described in the
+     brief — map onto the tokens already used everywhere so nothing
+     else in the file needs to be rewritten */
+  --glass-surface: linear-gradient(155deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,.055) 16%, rgba(13,14,16,.46) 58%, rgba(13,14,16,.52) 100%);
+  --glass-surface-strong: linear-gradient(155deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.08) 14%, rgba(13,14,16,.4) 56%);
+  --glass-highlight: rgba(255,255,255,.4);
+  --glass-shadow: 0 26px 60px -28px rgba(0,0,0,.55);
+  /* desaturate + dim what's behind the panel, rather than boosting
+     it — this is what keeps every card a neutral charcoal-glass tone
+     no matter how vivid the part of the photo behind it is */
+  --blur-glass-liquid: blur(22px) saturate(.5) brightness(.88) contrast(1.02);
+}
+
+/* ---- Real 3D liquid glass surface (cards, panels) -----------------
+   Three layers: translucent surface, a bright-on-top / dim-on-bottom
+   edge, and a soft shadow that separates the panel from the photo
+   behind it. A light backdrop blur is reintroduced here — it only
+   softens what's *behind* the panel, never the panel's own text, so
+   type stays perfectly sharp while the glass finally reads as a
+   dimensional material rather than a flat tinted rectangle. */
+.glass{
+  background: var(--glass-surface);
+  border:1px solid var(--glass-border);
+  border-top-color: var(--glass-highlight);
+  border-bottom-color: rgba(255,255,255,.08);
+  backdrop-filter: var(--blur-glass-liquid);
+  -webkit-backdrop-filter: var(--blur-glass-liquid);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 rgba(255,255,255,.4),
+    inset 0 0 0 1px rgba(255,255,255,.045),
+    inset 0 -20px 34px -26px rgba(0,0,0,.4);
+}
+/* gentle surface gradient sweep, independent of the pointer-tracked
+   specular highlight already defined on .glass::before above */
+.glass::after{
+  content:'';
+  position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  background:linear-gradient(115deg, rgba(255,255,255,.10) 0%, transparent 30%, transparent 72%, rgba(255,255,255,.05) 100%);
+  mix-blend-mode:overlay;
+}
+
+/* Nav / hero surfaces stay blur-free by design (sharp photo behind
+   them reads better at that size) but get the same bright-top /
+   dim-bottom edge treatment so they visually belong to one glass
+   family with the rest of the page. */
+.glass-clear{
+  border-top-color: var(--glass-highlight);
+  border-bottom-color: rgba(255,255,255,.06);
+  box-shadow:
+    0 22px 50px -24px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -14px 24px -20px rgba(0,0,0,.32);
+}
+
+/* No "glass on glass": inner surfaces nested inside an already-glass
+   parent (skill tags, tl-stat pills, cert-btn chips, lab-thumb frame)
+   stay as a plain thin-bordered chip rather than a second full glass
+   material — this was already the case throughout the file, this
+   just states the rule so it doesn't drift as the site evolves. */
+
+/* ---- Buttons — premium physical glass controls, not HUD chrome ----
+   Replaces the angled chamfer (clip-path) on the primary button and
+   the animated corner brackets on the ghost button with a calm
+   rounded-glass surface, in line with the rest of the design system
+   and away from the "gaming console" read those effects had. */
+.btn{ border-radius:16px; }
+.btn-primary{
+  clip-path:none;
+  background:linear-gradient(168deg, rgba(255,255,255,.22), rgba(34,211,166,.92) 55%, #1FB37E);
+  box-shadow:
+    0 14px 30px -12px rgba(34,211,166,.55),
+    inset 0 1px 0 rgba(255,255,255,.55);
+}
+.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 18px 36px -12px rgba(34,211,166,.7), inset 0 1px 0 rgba(255,255,255,.6); }
+.btn-primary:active{ transform:translateY(0) scale(.98); }
+.btn-ghost{
+  background:var(--glass-surface);
+  border:1px solid var(--glass-border);
+  border-top-color:var(--glass-highlight);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 10px 22px -16px rgba(0,0,0,.5);
+}
+.btn-ghost::before, .btn-ghost::after{ content:none; }
+.btn-ghost:hover{
+  background:var(--glass-surface-strong);
+  border-color:var(--glass-border-bright);
+  transform:translateY(-2px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 14px 26px -14px rgba(0,0,0,.55);
+}
+
+/* cf-submit (contact form send button) gets the same calm glass
+   treatment for consistency with the rest of the button system */
+.cf-submit{ background:var(--glass-surface); }
+.cf-submit:hover{ background:var(--glass-surface-strong); }
+
+/* ---- Turn off the two neon/gaming-coded decorative effects -------
+   1) The colored-glow "glitch" flicker on section headings (teal /
+      amber text-shadow) reads as cyberpunk neon, not premium Apple,
+      and the brief explicitly asks to avoid glowing typography.
+      The mirrored reflection under each heading is left in place —
+      it's a quiet Apple-style effect, not a glow. */
+.section h2.glitch-in, .contact-panel h2.glitch-in{ animation:none; text-shadow:none; transform:none; }
+
+/* 2) The glowing rotated "diamond" status marker in card corners —
+      an unnecessary decorative accent the brief calls out directly.
+      Removing it is a pure visual simplification; it carries no
+      content or function. */
+.trait-row::after, .award-card::after, .cert-card::after, .skill-card::after,
+.edu-card::after, .ref-card::after, .highlight-card::after, .case-card::after{
+  content:none;
+}
+
+/* ---- Mobile: keep the glass calm and the type crisp --------------
+   Heavy backdrop blur is the single most expensive paint operation
+   on scroll-heavy mobile pages, so it's dialled back (not removed)
+   below the point where devices are guaranteed to be handhelds. */
+@media (max-width:640px){
+  :root{ --blur-glass-liquid: blur(14px) saturate(.5) brightness(.88); }
+}
+
+/* =================================================================
+   PART 7 — Ambient motion pass
+   Slow, continuous, non-jittery movement only — nothing here shakes,
+   vibrates or flickers. Every element targeted below is checked
+   against the JS-driven transforms already in the page ([data-tilt],
+   [data-depth]/[data-parallax], the hero photo's scroll-rotation via
+   --scrollRotY/X, the pointer-tracked --mx/--my specular highlight)
+   so none of this fights with them. The existing global
+   `@media (prefers-reduced-motion: reduce)` rule near the top of the
+   file already disables every animation-duration site-wide, so it
+   covers everything added here automatically.
+================================================================= */
+
+/* ---- Background: slow cinematic drift instead of a static photo -- */
+.bg-field::before{
+  transform-origin:center 42%;
+  animation: bgDrift 26s ease-in-out infinite alternate;
+}
+@keyframes bgDrift{
+  0%{ transform:scale(1) translate(0,0); }
+  100%{ transform:scale(1.06) translate(-1.1%, -0.8%); }
+}
+/* oversized (inset:-4%) so the slow pan below never exposes an edge */
+.bg-field::after{
+  inset:-4%;
+  animation: glowDrift 24s ease-in-out infinite alternate;
+}
+@keyframes glowDrift{
+  0%{ transform:translate(0,0); }
+  100%{ transform:translate(-1.4%, -1%); }
+}
+
+/* ---- Universal "live" radar ping ------------------------------
+   Applies to every existing <span class="ping"> in the markup (nav
+   brand, hero status chip, hero photo tag, recruiter bar) with no
+   HTML changes — an expanding, fading ring reads as "moving" without
+   ever displacing the dot itself. */
+.ping{ position:relative; }
+.ping::after{
+  content:''; position:absolute; inset:0; border-radius:50%;
+  background:var(--teal);
+  animation: pingRadar 2.6s cubic-bezier(0,0,.2,1) infinite;
+  pointer-events:none;
+}
+@keyframes pingRadar{
+  0%{ transform:scale(1); opacity:.5; }
+  100%{ transform:scale(2.6); opacity:0; }
+}
+
+/* ---- Section label dot: soft pulse instead of a static dot ------- */
+.section-label .dot{ animation: pulse 2.6s ease-in-out infinite; }
+
+/* ---- Scroll hint arrow: a gentle, expected "keep scrolling" bounce */
+.scroll-scrub-hint span{ animation: hintBounce 1.8s ease-in-out infinite; }
+@keyframes hintBounce{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(5px); }
+}
+
+/* ---- Hero photo tag: a very small idle float ---------------------
+   translateZ(28px) is kept in every keyframe step so this never
+   collapses the tag's position in the preserve-3d hero-photo stack;
+   only the Y offset moves. */
+.hero-photo-tag{ animation: tagFloat 5s ease-in-out infinite; }
+@keyframes tagFloat{
+  0%,100%{ transform:translateZ(28px) translateY(0); }
+  50%{ transform:translateZ(28px) translateY(-4px); }
+}
+
+/* ---- Lab ticket status dots: a soft "live system" breathing glow -
+   Only on resolved/documented tickets — the pending/not-logged dot
+   stays static, which also reinforces its meaning. */
+.lab-dot--done{ animation: dotBreatheTeal 3.4s ease-in-out infinite; }
+.lab-dot--doc{ animation: dotBreatheAmber 3.4s ease-in-out infinite; }
+@keyframes dotBreatheTeal{
+  0%,100%{ box-shadow:0 0 5px var(--teal); }
+  50%{ box-shadow:0 0 12px var(--teal); }
+}
+@keyframes dotBreatheAmber{
+  0%,100%{ box-shadow:0 0 5px rgba(143,168,189,.55); }
+  50%{ box-shadow:0 0 12px rgba(143,168,189,.75); }
+}
+
+/* ---- Primary CTA: a small idle nudge on the arrow, paused on hover
+   so the deliberate hover push-effect (already defined earlier)
+   still reads clearly instead of being masked by the loop. */
+.btn-primary .btn-arrow{ animation: arrowNudge 1.8s ease-in-out infinite; }
+.btn-primary:hover .btn-arrow{ animation:none; }
+@keyframes arrowNudge{
+  0%,100%{ transform:translateX(0); }
+  50%{ transform:translateX(3px); }
+}
+
+/* =================================================================
+   PART 8 — Glass pill buttons
+   Every clickable button on the site now shares one shape and one
+   material: a fully rounded glass pill, using the same liquid-glass
+   tokens (--glass-surface / --glass-highlight / --blur-glass-liquid)
+   Part 6 already introduced. Append-only, later-in-cascade-wins —
+   same approach as Parts 5–7 — rather than rewriting every button
+   rule scattered through the file.
+================================================================= */
+
+/* Shape — every button becomes a true pill, no exceptions */
+.btn, .nav-cta, .nav-toggle, .recruiter-link, .recruiter-link-cv,
+.cert-btn, .cf-submit, .arsenal-tab{
+  border-radius:999px;
+}
+.btn-primary::before{ display:none; } /* old chamfer sweep doesn't suit a plain pill */
+.btn-ghost::before, .btn-ghost::after{ content:none; } /* corner brackets don't suit a pill */
+
+/* Standalone buttons — ones sitting directly on the photo background
+   rather than nested inside an existing glass card (hero CTAs, the
+   nav "Let's talk" pill, the mobile menu toggle, the recruiter-bar
+   links, the Arsenal filter tabs) — get the full liquid-glass
+   material, blur included. */
+.btn-primary, .btn-ghost, .nav-cta, .nav-toggle, .recruiter-link,
+.recruiter-link-cv, .arsenal-tab{
+  background:var(--glass-surface);
+  border:1px solid var(--glass-border);
+  border-top-color:var(--glass-highlight);
+  backdrop-filter:var(--blur-glass-liquid);
+  -webkit-backdrop-filter:var(--blur-glass-liquid);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.32), 0 12px 26px -16px rgba(0,0,0,.5);
+  color:var(--text);
+}
+.btn-primary:hover, .btn-ghost:hover, .nav-cta:hover, .nav-toggle:hover,
+.recruiter-link:hover, .recruiter-link-cv:hover, .arsenal-tab:hover{
+  background:var(--glass-surface-strong);
+  border-color:var(--glass-border-bright);
+  transform:translateY(-2px);
+}
+
+/* Primary / active actions keep a teal accent so they still read as
+   "the" button to press — now as a tinted glass pill instead of a
+   solid fill. */
+.btn-primary, .recruiter-link-cv, .nav-cta, .arsenal-tab.active{
+  color:var(--teal);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 14px 30px -14px rgba(34,211,166,.5);
+}
+
+/* Buttons nested inside an already-glass card (certificate actions,
+   the contact-form submit) skip a second blur layer — the same
+   "no glass on glass" rule the rest of the file already follows —
+   and just pick up the tinted glass gradient + pill shape. */
+.cert-btn, .cf-submit{
+  background:var(--glass-surface);
+  border:1px solid var(--glass-border);
+  border-top-color:var(--glass-highlight);
+}
+.cert-btn:hover, .cf-submit:hover{
+  background:var(--glass-surface-strong);
+  border-color:var(--glass-border-bright);
+}
+.cert-btn.primary{ color:var(--teal); }
+
